@@ -1,30 +1,33 @@
 from queue import PriorityQueue
 
 # Fungsi untuk algoritma A* Graph Search
-def a_star_search(graph, start, goal, heuristic):
-    frontier = PriorityQueue()  # Antrian prioritas untuk menyimpan simpul yang akan dieksplorasi
-    frontier.put((0, start))  # Menambahkan simpul awal ke dalam antrian dengan nilai prioritas 0
-    explored = set()  # Set untuk menyimpan simpul yang sudah dieksplorasi
+def a_star_graph_search(graph, start, goal, heuristic):
+    frontier = PriorityQueue()  # Antrian prioritas berdasarkan f(n) = g(n) + h(n)
+    frontier.put((0, start, []))  # (biaya, simpul, jalur)
+    explored = {}  # Dictionary untuk menyimpan biaya terendah ke setiap simpul
 
     while not frontier.empty():
-        _, current_node = frontier.get()  # Mengambil simpul dengan nilai prioritas terendah dari antrian
+        current_cost, current_node, path = frontier.get()  # Ambil simpul dengan prioritas terendah
+        path = path + [current_node]  # Tambahkan simpul ke jalur
 
         if current_node == goal:
-            print("Simpul tujuan sudah ditemukan!")
-            return True  # Mengembalikan True jika simpul tujuan sudah ditemukan
+            print("\nSimpul tujuan ditemukan!")
+            print("Jalur yang ditemukan:", " → ".join(path))
+            print("Total biaya jalur:", current_cost)
+            return  # Berhenti jika simpul tujuan ditemukan
 
-        explored.add(current_node)  # Menandai simpul saat ini sebagai sudah dieksplorasi
+        explored[current_node] = current_cost  # Tandai simpul sebagai dieksplorasi
 
-        for neighbor in graph[current_node]:
-            cost = graph[current_node][neighbor]  # Biaya langkah dari simpul saat ini ke tetangga
-            heuristic_cost = heuristic[neighbor]  # Nilai heuristik dari tetangga
-            total_cost = cost + heuristic_cost  # Total biaya yang diperlukan untuk mencapai tetangga
+        for neighbor, cost in graph[current_node].items():
+            new_cost = current_cost + cost  # g(n)
+            total_cost = new_cost + heuristic[neighbor]  # f(n) = g(n) + h(n)
 
-            if neighbor not in explored:
-                frontier.put((total_cost, neighbor))  # Menambahkan simpul tetangga ke dalam antrian dengan nilai prioritas total_cost
+            # Jika simpul belum dieksplorasi atau ditemukan jalur dengan biaya lebih rendah
+            if neighbor not in explored or new_cost < explored[neighbor]:
+                explored[neighbor] = new_cost
+                frontier.put((total_cost, neighbor, path))  # Masukkan simpul ke frontier
 
-    print("Simpul tujuan tidak ditemukan!")
-    return False  # Mengembalikan False jika simpul tujuan tidak ditemukan
+    print("\nSimpul tujuan tidak ditemukan!")
 
 # Daftar heuristik untuk setiap simpul
 heuristic = {
@@ -51,5 +54,5 @@ graph = {
 start_node = 'S'
 goal_node = 'G'
 
-# Panggil fungsi A* Search
-a_star_search(graph, start_node, goal_node, heuristic)
+# Panggil fungsi A* Graph Search
+a_star_graph_search(graph, start_node, goal_node, heuristic)
