@@ -1,52 +1,57 @@
 from queue import PriorityQueue
 
-# Fungsi untuk algoritma Greedy Search
-def greedy_search(graph, start, goal):
-    frontier = PriorityQueue()  # Antrian prioritas untuk menyimpan simpul yang akan dieksplorasi
-    frontier.put((0, start))  # Menambahkan simpul awal ke dalam antrian dengan nilai prioritas 0
-    explored = set()  # Set untuk menyimpan simpul yang sudah dieksplorasi
+# Fungsi untuk algoritma Greedy Best-First Search
+def greedy_best_first_search(graph, start, goal):
+    frontier = PriorityQueue()  
+    frontier.put((heuristic[start], start))
+    explored = set() 
+    visited_order = []  
 
     while not frontier.empty():
-        _, current_node = frontier.get()  # Mengambil simpul dengan nilai prioritas terendah dari antrian
+        _, current_node = frontier.get() 
+        visited_order.append(current_node)
+        print("Mengunjungi simpul:", current_node)
 
         if current_node == goal:
-            print("Simpul tujuan sudah ditemukan!")
-            return True  # Mengembalikan True jika simpul tujuan sudah ditemukan
+            print("\nSimpul tujuan ditemukan!")
+            print("Urutan kunjungan simpul:", " → ".join(visited_order))
+            return True  # Berhenti jika simpul tujuan ditemukan
 
-        explored.add(current_node)  # Menandai simpul saat ini sebagai sudah dieksplorasi
+        explored.add(current_node)  # Tandai sebagai sudah dieksplorasi
 
-        for neighbor in graph.get(current_node, []):
+        for neighbor in graph[current_node]:
             if neighbor not in explored:
-                priority = heuristic[neighbor]  # Menggunakan nilai heuristik untuk menentukan prioritas
-                frontier.put((priority, neighbor))  # Menambahkan simpul tetangga ke dalam antrian dengan nilai prioritas heuristik
+                priority = heuristic[neighbor]  # Nilai heuristik sebagai prioritas
+                frontier.put((priority, neighbor))  # Tambahkan ke antrian
 
-    print("Simpul tujuan tidak ditemukan!")
-    return False  # Mengembalikan False jika simpul tujuan tidak ditemukan
+    print("\nSimpul tujuan tidak ditemukan!")
+    print("Urutan kunjungan simpul:", " → ".join(visited_order))
+    return False  # Jika simpul tujuan tidak ditemukan
 
 # Daftar heuristik untuk setiap simpul
 heuristic = {
     'A': 9,
     'B': 4,
-    'C': 5,
+    'C': 2,
     'D': 5,
     'E': 3,
     'S': 7,
-    'G': 0
+    'G': 0  # Simpul tujuan memiliki nilai heuristik 0
 }
 
-# Graf (dalam bentuk daftar kejadian)
+# Graf berbentuk adjacency list
 graph = {
     'S': {'A', 'E'},
     'A': {'B', 'C'},
-    'B': {'G'},
+    'B': {'D'},
     'C': {'G'},
-    'E': {'D'},
-    'D': {'G'}
+    'D': {'G'},
+    'E': {'D'}
 }
 
 # Titik awal dan tujuan
 start_node = 'S'
 goal_node = 'G'
 
-# Panggil fungsi greedy search
-greedy_search(graph, start_node, goal_node)
+# Panggil fungsi Greedy Best-First Search
+greedy_best_first_search(graph, start_node, goal_node)
